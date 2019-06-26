@@ -5,7 +5,6 @@ const fetch = require('node-fetch')
 const stringSimilarity = require('string-similarity');
 const fs = require('fs')
 const twitch = require('../twitch/twitch')
-const uuid = require('uuid/v4')
 
 const { DISCORD } = require('../config')
 
@@ -36,7 +35,7 @@ client.on('message', msg => {
         gifVisualDirections(msg.author)
     }
     if(msg.channel.type === "dm" && msg.content == '!'){
-        msg.author.send(DISCORD.login_url_user)
+        msg.author.send(getDiscordLesserLogin())
     }
 })
 
@@ -89,6 +88,10 @@ client.getDiscordLogin = () => {
     return result;
 }
 
+const getDiscordLesserLogin = () => {
+    const result = DISCORD.login_url_user.replace('<redirect_uri>', encodeURIComponent(DISCORD.redirect_uri))
+    return result;
+}
 const BASEURL = 'https://discordapp.com/api/v6'
 
 const getUserConnections = async (token) => {

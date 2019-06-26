@@ -81,7 +81,7 @@ const getChannelInfoAuthorized = async (token, username) => {
     return json;
 }
 
-const getAllChannelSubs = async (code) => {
+const getTwitchInfo = async (code) => {
     let token = await getToken(code)
     let channelInfo = await getChannelInfo(token.access_token)
     if(channelInfo.token.authorization.scopes[0] == 'user:read:email'){
@@ -117,11 +117,11 @@ const getLesserTwitchLogin = () => {
     return result;
 }
 
-console.log(getTwitchLogin())
+//console.log(getTwitchLogin())
 console.log(getLesserTwitchLogin())
 
 module.exports = {
-    getAllChannelSubs,
+    getTwitchInfo,
     getTwitchLogin,
     getLesserTwitchLogin
 }
