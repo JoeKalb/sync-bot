@@ -1,8 +1,9 @@
 # Sync Bot
 ## A #HackWeek Discord Bot
-### Sync Bot helps to manage discord roles related to twitch sub tiers.
 
-> Note: since twitch already manages a general Twitch Subscribers role through the server integerations, having that connected is a prerequisite to having the bot work. If twitch is not already integrated to the users account and server the bot will promp them to the [Twitch Integration FAQ](https://support.discordapp.com/hc/en-us/articles/212112068-Twitch-Integration-FAQ).  
+> Sync Bot helps to manage Discord roles related to Twitch sub tiers. No more having to manually look through every channel sub to make sure that people have the correct roles!
+
+> Note: Since twitch already manages a general Twitch Subscribers role through the server integerations, having that connected is a prerequisite to having the bot work. If twitch is not already integrated to the users account and server the bot will promp them to the [Twitch Integration FAQ](https://support.discordapp.com/hc/en-us/articles/212112068-Twitch-Integration-FAQ).  
 
 To get the bot up and running you'll need both discord and twitch api credentials. The `config.js` file will have the following format and sit on the top level of the app.
 

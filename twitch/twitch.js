@@ -35,25 +35,37 @@ const getRefreshToken = async (refresh_token) => {
 }
 
 const getChannelInfo = async (token) => {
-    let res = await fetch('https://api.twitch.tv/kraken',{
-        headers: {
-            'Authorization':`OAuth ${token}`,
-            'Accept': 'application/vnd.twitchtv.v5+json',
-            'Client-ID':TWITCH.client_id
-        }
-    })
-    let json = await res.json()
-    return json
+    try{
+        let res = await fetch('https://api.twitch.tv/kraken',{
+            headers: {
+                'Authorization':`OAuth ${token}`,
+                'Accept': 'application/vnd.twitchtv.v5+json',
+                'Client-ID':TWITCH.client_id
+            }
+        })
+        let json = await res.json()
+        return json
+    }
+    catch(err){
+        console.log(err)
+        return {err}
+    }
 }
 
 const getIndivChannelSub = async (token, broad_id, user_id) => {
-    let res = await fetch(`https://api.twitch.tv/helix/subscriptions?broadcaster_id=${broad_id}&user_id=${user_id}`,{
-        headers:{
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    let json = res.json()
-    return json
+    try{
+        let res = await fetch(`https://api.twitch.tv/helix/subscriptions?broadcaster_id=${broad_id}&user_id=${user_id}`,{
+            headers:{
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        let json = res.json()
+        return json
+    }
+    catch(err){
+        console.log(err)
+        return {err}
+    }
 }
 
 const getAllChannelSubsHelper = async (user_id, token) => {
@@ -64,14 +76,15 @@ const getAllChannelSubsHelper = async (user_id, token) => {
     let total = 1;
     while(subs.length < total){
         //console.log(`Current offset: ${offset}`)
-        let res = await fetch(`https://api.twitch.tv/kraken/channels/${user_id}/subscriptions?limit=${limit}&offset=${offset}`, {
-            headers:{
-                'Accept': 'application/vnd.twitchtv.v5+json',
-                'Authorization': `OAuth ${token}`,
-            }
-        })
-        let json = await res.json()
         try{
+            let res = await fetch(`https://api.twitch.tv/kraken/channels/${user_id}/subscriptions?limit=${limit}&offset=${offset}`, {
+                headers:{
+                    'Accept': 'application/vnd.twitchtv.v5+json',
+                    'Authorization': `OAuth ${token}`,
+                }
+            })
+            let json = await res.json()
+            
             total = json._total;
             subs = [...subs, ...json.subscriptions]
             subsFromCall = json.subscriptions.length
@@ -87,48 +100,66 @@ const getAllChannelSubsHelper = async (user_id, token) => {
 }
 
 const getChannelInfoAuthorized = async (token, username) => {
-    let res = await fetch(`https://api.twitch.tv/helix/users?login=${username}`, {
-        headers:{
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    let json = await res.json()
-    return json;
+    try{
+        let res = await fetch(`https://api.twitch.tv/helix/users?login=${username}`, {
+            headers:{
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        let json = await res.json()
+        return json;
+    }
+    catch(err){
+        console.log(err)
+        return {err}
+    }
 }
 
 const getChannelInfoOnlyName = async (username) => {
-    let res = await fetch(`https://api.twitch.tv/helix/users?login=${username}`, {
-        'Client-ID':TWITCH.client_id
-    })
-    let json = await res.json()
-    return json
+    try{
+        let res = await fetch(`https://api.twitch.tv/helix/users?login=${username}`, {
+            'Client-ID':TWITCH.client_id
+        })
+        let json = await res.json()
+        return json
+    }
+    catch(err){
+        console.log(err)
+        return {err}
+    }
 }
 
 const getTwitchInfo = async (code) => {
-    let token = await getToken(code)
-    let channelInfo = await getChannelInfo(token.access_token)
-    if(channelInfo.token.authorization.scopes[0] == 'user:read:email'){
-        let accountInfo = await getChannelInfoAuthorized(token.access_token, channelInfo.token.user_name)
-        return {
-            type:"Viewer",
-            accountInfo
-        };
-    }
-    else if(channelInfo.token.valid){
-        let subs = await getAllChannelSubsHelper(channelInfo.token.user_id, token.access_token)
-        /* fs.writeFileSync(`./subs/${channelInfo.token.user_name}Subs.json`, JSON.stringify({
-            token,
-            channelInfo,
-            subs
-        })) */
-        return {
-            type:"Broadcaster",
-            token,
-            channelInfo,
-            subs
+    try{
+        let token = await getToken(code)
+        let channelInfo = await getChannelInfo(token.access_token)
+        if(channelInfo.token.authorization.scopes[0] == 'user:read:email'){
+            let accountInfo = await getChannelInfoAuthorized(token.access_token, channelInfo.token.user_name)
+            return {
+                type:"Viewer",
+                accountInfo
+            };
         }
+        else if(channelInfo.token.valid){
+            let subs = await getAllChannelSubsHelper(channelInfo.token.user_id, token.access_token)
+            /* fs.writeFileSync(`./subs/${channelInfo.token.user_name}Subs.json`, JSON.stringify({
+                token,
+                channelInfo,
+                subs
+            })) */
+            return {
+                type:"Broadcaster",
+                token,
+                channelInfo,
+                subs
+            }
+        }
+        return 'Did not work'
     }
-    return 'Did not work'
+    catch(err){
+        console.log(err)
+        return {err}
+    }
 }
 
 const getTwitchLogin = () => {

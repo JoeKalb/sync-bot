@@ -25,89 +25,106 @@ client.on('guildCreate', (guild) => {
         .setDescription('The final steps to getting Sync Bot up and running!')
         .addField('Elevate the "Sync Bot" Role in your Discord Server', `Server Drop Down Menu("v")>"Server Settings">"Roles">Drag "Sync Bot" above all the roles you wish it to control>"Save Changes"\nReply with "!gifs" for visual aids.\n`)
         .addField(`!commands`, 'Show all commands available by doing "!commands"')
-    guild.owner.send(embed)
+    try{
+        guild.owner.send(embed)
+    }catch(err){
+        console.log(err)
+    }
 })
 
 client.on('message', msg => {
-    const ownerGuildID = ownerSetUp(msg)
-    if(ownerGuildID){
-        if(msg.content.substr(0, 1) !== '!')
-            return
-        const args = msg.content.trim().slice(1).split(' ')
-        const commandName = args[0]
-        switch(commandName){
-            case('commands'):
-                const commands = [
-                    '!link - provides link to share with other members of your server',
-                    '!gifs - show gifs to elevate the "Sync Bot" role in your discord',
-                    '!roles - display all discord roles in your server',
-                    '!set - how to set the different tier subs to discord roles',
-                    '!t<sub tier number> <role name> - set a specific sub tier to a role',
-                    '!invite - send invite to all server members that already have Twitch Synced to their discord account',
-                    '!invite all - send the Sync Bot Invite to everyone!',
-                    '!sync - will grab your current subs from twitch and reset everyones to the proper tier',
-                ]
-                msg.author.send(commands)
-                break
-            case ('invite'):
-                const currentGuild = client.guilds.find(guild => guild.id === ownerGuildID)
-                if(args[1] == 'all'){
-                    currentGuild.members.forEach(member => {
-                        member.send(`The Discord Server ${currentGuild.name} has just added Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}twitchuser`)
+    try{
+        const ownerGuildID = ownerSetUp(msg)
+        if(ownerGuildID){
+            if(msg.content.substr(0, 1) !== '!')
+                return
+            const args = msg.content.trim().slice(1).split(' ')
+            const commandName = args[0]
+            switch(commandName){
+                case('commands'):
+                    const commands = [
+                        '!link - provides link to share with other members of your server',
+                        '!gifs - show gifs to elevate the "Sync Bot" role in your discord',
+                        '!roles - display all discord roles in your server',
+                        '!set - how to set the different tier subs to discord roles',
+                        '!t<sub tier number> <role name> - set a specific sub tier to a role',
+                        '!invite - send invite to all server members that already have Twitch Synced to their discord account',
+                        '!invite all - send the Sync Bot Invite to everyone!',
+                        '!sync - will grab your current subs from twitch and reset everyones to the proper tier',
+                    ]
+                    msg.author.send(commands)
+                    break
+                case ('invite'):
+                    const currentGuild = client.guilds.find(guild => guild.id === ownerGuildID)
+                    if(args[1] == 'all'){
+                        currentGuild.members.forEach(member => {
+                            member.send(`The Discord Server ${currentGuild.name} has just added Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}twitchuser`)
+                        })
+                    }
+                    else{
+                        const twitchRoleID = localDB.getGuild(ownerGuildID).t1
+                        const role = currentGuild.roles.find(role => role.id === twitchRoleID)
+                        role.members.forEach(member => {
+                            member.send(`The Discord Server ${currentGuild.name} has just added Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}twitchuser`)
+                        })
+                    }
+                    break
+                case('gifs'):
+                    gifVisualDirections(msg.author)
+                    break
+                case('set'):
+                    msg.author.send(`Set a tier sub role with "!t<number> <role name>"\nEx: !t3 iPhone Xs Max Owners`)
+                    break
+                case('link'):
+                    msg.author.send(getDiscordLesserLogin())
+                    break
+                case('t1'):
+                    let t1 = findClosestMatch(commandName, args, ownerGuildID)
+                    msg.author.send(`Set Tier 1 subs to ${t1} role.`)
+                    break
+                case('t2'):
+                    let t2 = findClosestMatch(commandName, args, ownerGuildID)
+                    msg.author.send(`Set Tier 2 subs to ${t2} role.`)
+                    break
+                case('t3'):
+                    let t3 = findClosestMatch(commandName, args, ownerGuildID)
+                    msg.author.send(`Set Tier 3 subs to ${t3} role.`)
+                    break
+                case('sync'):
+                    msg.channel.startTyping()
+                    const user = localDB.getUser(msg.author.id)
+                    let caster = localDB.getBroadcaster(user.twitch_id)
+                    //console.log(caster)
+                    syncUsers(user.twitch_id, caster)
+                        .then(subs => {
+                            const canMangeRoles = editSubRoles(ownerGuildID , subs) 
+                            msg.channel.stopTyping()
+
+                            if(canMangeRoles){
+                                msg.author.send('Subs Updated')
+                            }
+                            else{
+                                msg.author.send([`Sync Bot's role is lower than roles it's trying to manage.`,
+                                `Please elevate the "Sync Bot" role in your server settings.`,
+                                `!gifs - for the visual aids to show you how`])
+                            }
+                        })
+                    break
+                case('roles'):
+                    let roles = []
+                    const guild = client.guilds.find(guild => guild.id === ownerGuildID)
+                    guild.roles.forEach(role => {
+                        roles = [...roles, role.name]
                     })
-                }
-                else{
-                    const twitchRoleID = localDB.getGuild(ownerGuildID).t1
-                    const role = currentGuild.roles.find(role => role.id === twitchRoleID)
-                    role.members.forEach(member => {
-                        member.send(`The Discord Server ${currentGuild.name} has just added Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}twitchuser`)
-                    })
-                }
-                break
-            case('gifs'):
-                gifVisualDirections(msg.author)
-                break
-            case('set'):
-                msg.author.send(`Set a tier sub role with "!t<number> <role name>"\nEx: !t3 iPhone Xs Max Owners`)
-                break
-            case('link'):
-                msg.author.send(getDiscordLesserLogin())
-                break
-            case('t1'):
-                let t1 = findClosestMatch(commandName, args, ownerGuildID)
-                msg.author.send(`Set Tier 1 subs to ${t1} role.`)
-                break
-            case('t2'):
-                let t2 = findClosestMatch(commandName, args, ownerGuildID)
-                msg.author.send(`Set Tier 2 subs to ${t2} role.`)
-                break
-            case('t3'):
-                let t3 = findClosestMatch(commandName, args, ownerGuildID)
-                msg.author.send(`Set Tier 3 subs to ${t3} role.`)
-                break
-            case('sync'):
-                msg.channel.startTyping()
-                const user = localDB.getUser(msg.author.id)
-                let caster = localDB.getBroadcaster(user.twitch_id)
-                //console.log(caster)
-                syncUsers(user.twitch_id, caster)
-                    .then(subs => {
-                        editSubRoles(ownerGuildID , subs)
-                        msg.channel.stopTyping()
-                        msg.author.send('Subs Updated')
-                    })
-                break
-            case('roles'):
-                let roles = []
-                const guild = client.guilds.find(guild => guild.id === ownerGuildID)
-                guild.roles.forEach(role => {
-                    roles = [...roles, role.name]
-                })
-                roles = [`Below are all the roles available in the ${guild.name} server.`, ...roles]
-                msg.author.send(roles)
-                break
-            default:
+                    roles = [`Below are all the roles available in the ${guild.name} server.`, ...roles]
+                    msg.author.send(roles)
+                    break
+                default:
+            }
         }
+    }
+    catch(err){
+        console.log(err)
     }
 })
 
@@ -118,27 +135,51 @@ const editSubRoles = (guild_id, subs) => {
     })
     const guild = client.guilds.find(guild => guild.id === guild_id)
     const guild_data = localDB.getGuild(guild_id)
+
+    // check that Sync Bot has a higher role than the ones its trying to change
+    const syncBot = guild.members.find(member => member.id === client.user.id)
+    const syncBotRole = syncBot.roles.find(role => role.name === "Sync Bot")
+
+    const t2Role = guild.roles.find(role => role.id === guild_data.t2)
+    const t3Role = guild.roles.find(role => role.id === guild_data.t3)
+
+    if(syncBotRole.comparePositionTo(t2Role) && syncBotRole.comparePositionTo(t3Role)){
+        return false;
+    }
+
     guild.members.forEach(member => {
-        const user = localDB.getUser(member.id)
-        if(user && map.hasOwnProperty(user.twitch_id)){
-            if(map[user.twitch_id] === "3000"){
-                member.addRole(guild_data.t3)
-                member.removeRole(guild_data.t2)
+        try{
+            const user = localDB.getUser(member.id)
+            if(user && map.hasOwnProperty(user.twitch_id)){
+                if(map[user.twitch_id] === "3000"){
+                    member.addRole(guild_data.t3)
+                    member.removeRole(guild_data.t2)
+                }
+                else if(map[user.twitch_id] === "2000"){
+                    member.addRole(guild_data.t2)
+                    member.removeRole(guild_data.t3)
+                }
             }
-            else if(map[user.twitch_id] === "2000"){
-                member.addRole(guild_data.t2)
-                member.removeRole(guild_data.t3)
-            }
+            else
+                member.removeRoles([guild_data.t2, guild_data.t3])
         }
-        else
-            member.removeRoles([guild_data.t2, guild_data.t3])
+        catch(err){
+            console.log(err)
+        }
     })
+
+    return true;
 }
 
 const syncUsers = async (twitch_id, caster) => {
-    let subs = await 
-        twitch.getAllChannelSubsHelper(twitch_id, caster.twitch_token.access_token)
-    return subs;
+    try{
+        let subs = await 
+            twitch.getAllChannelSubsHelper(twitch_id, caster.twitch_token.access_token)
+        return subs;
+    }
+    catch(err){
+        console.log(err)
+    }
 }
 
 const findClosestMatch = (commandName, args, ownerGuildID) => {
@@ -173,47 +214,57 @@ const ownerSetUp = (msg) => {
 }
 
 client.getToken = async (code) => {
-    const data = {
-        'client_id': DISCORD.client_id,
-        'client_secret': DISCORD.client_secret,
-        'grant_type':'authorization_code',
-        'code': code,
-        'redirect_uri': DISCORD.redirect_uri,
-        'scope': 'bot'
+    try{
+        const data = {
+            'client_id': DISCORD.client_id,
+            'client_secret': DISCORD.client_secret,
+            'grant_type':'authorization_code',
+            'code': code,
+            'redirect_uri': DISCORD.redirect_uri,
+            'scope': 'bot'
+        }
+        const body = formurlencoded(data)
+    
+        let res = await fetch(DISCORD.token_url, {
+            method: 'POST',
+            headers:{
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body
+        })
+        let json = await res.json()
+        return json
     }
-    const body = formurlencoded(data)
-
-    let res = await fetch(DISCORD.token_url, {
-        method: 'POST',
-        headers:{
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body
-    })
-    let json = await res.json()
-    return json
+    catch(err){
+        console.log(err)
+    }
 }
 
 client.getRefreshToken = async (refresh_token) => {
-    const data = {
-        'client_id': DISCORD.client_id,
-        'client_secret': DISCORD.client_secret,
-        'grant_type':'refresh_token',
-        'refresh_token': refresh_token,
-        'redirect_uri': DISCORD.redirect_uri,
-        'scope': 'bot'
+    try{
+        const data = {
+            'client_id': DISCORD.client_id,
+            'client_secret': DISCORD.client_secret,
+            'grant_type':'refresh_token',
+            'refresh_token': refresh_token,
+            'redirect_uri': DISCORD.redirect_uri,
+            'scope': 'bot'
+        }
+        const body = formurlencoded(data)
+    
+        let res = await fetch(DISCORD.token_url, {
+            method: 'POST',
+            headers:{
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body
+        })
+        let json = await res.json()
+        return json
     }
-    const body = formurlencoded(data)
-
-    let res = await fetch(DISCORD.token_url, {
-        method: 'POST',
-        headers:{
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-        body
-    })
-    let json = await res.json()
-    return json
+    catch(err){
+        console.log(err)
+    }
 }
 
 client.getDiscordLogin = () => {
@@ -228,38 +279,61 @@ const getDiscordLesserLogin = () => {
 const BASEURL = 'https://discordapp.com/api/v6'
 
 const getUserConnections = async (token) => {
-    let res = await fetch(`${BASEURL}/users/@me/connections`, {
-        headers:{
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    let json = await res.json()
-    return json;
+    try{
+        let res = await fetch(`${BASEURL}/users/@me/connections`, {
+            headers:{
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        let json = await res.json()
+        return json;
+    }
+    catch(err){
+        console.log(err)
+    }
 }
 
 const getUserIdentity = async (token) => {
-    let res = await fetch(`${BASEURL}/users/@me`, {
-        headers:{
-            'Authorization':`Bearer ${token}`
-        }
-    })
-    let json = await res.json()
-    return json
+    try{
+        let res = await fetch(`${BASEURL}/users/@me`, {
+            headers:{
+                'Authorization':`Bearer ${token}`
+            }
+        })
+        let json = await res.json()
+        return json
+    }
+    catch(err){
+        console.log(err)
+        return{err}
+    }
 }
 
 client.connectDiscordUser = async (token) => {
-    let connections = await getUserConnections(token)
-    let identity = await getUserIdentity(token)
-    return {
-        connections,
-        identity
+    try{
+        let connections = await getUserConnections(token)
+        let identity = await getUserIdentity(token)
+        return {
+            connections,
+            identity
+        }
+    }
+    catch(err){
+        console.log(err)
+        return {err}
     }
 }
 
 client.getGuildIntegrations = async (guild_id) => {
-    let res = await fetch(`${BASEURL}/guilds/${guild_id}/integrations`)
-    let json = await res.json()
-    return json;
+    try{
+        let res = await fetch(`${BASEURL}/guilds/${guild_id}/integrations`)
+        let json = await res.json()
+        return json;
+    }
+    catch(err){
+        console.log(err)
+        return {err}
+    }
 }
 
 client.getMatchingGuildId = (owner_id) =>{
@@ -313,23 +387,29 @@ client.sendVerificationToOwner = (guild_id, twitch_name) => {
         (t2.id)?t2.id:"",
         (t3.id)?t3.id:"")
     
-    const embed = new RichEmbed()
-        .setTitle('All Synced Up!')
-        .setColor(0xF04747)
-        .setDescription(`Sync Bot has linked the following Server and Channel together!`)
-        .addField('Discord Server', `${guild.name}`, true)
-        .addField('Twitch Channel', `${twitch_name}`, true)
-        .addField('Roll Settings', `Sync Bot will guess what sub tiers match your discord roles. "!set" for help.`)
-        .addField('General Twitch Sub Role', 
-            `${(sub.name)? sub.name: `Response with "!t1 <role name>" to set this role`}`, true)
-        .addField('Tier 2 Sub Role', 
-            `${(t2.name)? t2.name: `Response with "!t2 <role name>" to set this role`}`, true)
-        .addField('Tier 3 Sub Role',
-            `${(t3.name)? t3.name: `Response with "!t3 <role name>" to set this role`}`, true)
-        .addField('Everything look good?', 
-            `"!command" - to see all commands\n"!invite" - to send the Sync Bot link to all current Twitch Subs\n"!sync" - set the roles for anyone that has already signed into sync bot!`)
-        .setImage('https://media.giphy.com/media/F9hQLAVhWnL56/giphy.gif')
-    guild.owner.send(embed)
+    try{
+        const embed = new RichEmbed()
+            .setTitle('All Synced Up!')
+            .setColor(0xF04747)
+            .setDescription(`Sync Bot has linked the following Server and Channel together!`)
+            .addField('Discord Server', `${guild.name}`, true)
+            .addField('Twitch Channel', `${twitch_name}`, true)
+            .addField('Roll Settings', `Sync Bot will guess what sub tiers match your discord roles. "!set" for help.`)
+            .addField('General Twitch Sub Role', 
+                `${(sub.name)? sub.name: `Response with "!t1 <role name>" to set this role`}`, true)
+            .addField('Tier 2 Sub Role', 
+                `${(t2.name)? t2.name: `Response with "!t2 <role name>" to set this role`}`, true)
+            .addField('Tier 3 Sub Role',
+                `${(t3.name)? t3.name: `Response with "!t3 <role name>" to set this role`}`, true)
+            .addField('Everything look good?', 
+                `!command - to see all commands\n!invite - to send the Sync Bot link to all current Twitch Subs\n!sync - set the roles for anyone that has already signed into sync bot!`)
+            .setImage('https://media.giphy.com/media/F9hQLAVhWnL56/giphy.gif')
+        guild.owner.send(embed)
+    }
+    catch(err){
+        console.log(err)
+    }
+    
 }
 
 client.getDiscordLesserLogin = () => {
