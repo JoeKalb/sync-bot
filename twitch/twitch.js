@@ -48,7 +48,7 @@ const getAllChannelSubsHelper = async (user_id, token) => {
     const limit = 100;
     let total = 1;
     while(subs.length < total){
-        console.log(`Current offset: ${offset}`)
+        //console.log(`Current offset: ${offset}`)
         let res = await fetch(`https://api.twitch.tv/kraken/channels/${user_id}/subscriptions?limit=${limit}&offset=${offset}`, {
             headers:{
                 'Accept': 'application/vnd.twitchtv.v5+json',
@@ -60,7 +60,7 @@ const getAllChannelSubsHelper = async (user_id, token) => {
             total = json._total;
             subs = [...subs, ...json.subscriptions]
             subsFromCall = json.subscriptions.length
-            console.log(`Subs in Call: ${subsFromCall}`)
+            //console.log(`Subs in Call: ${subsFromCall}`)
         }
         catch(err){
             console.log(err)
@@ -79,6 +79,14 @@ const getChannelInfoAuthorized = async (token, username) => {
     })
     let json = await res.json()
     return json;
+}
+
+const getChannelInfoOnlyName = async (username) => {
+    let res = await fetch(`https://api.twitch.tv/helix/users?login=${username}`, {
+        'Client-ID':TWITCH.client_id
+    })
+    let json = await res.json()
+    return json
 }
 
 const getTwitchInfo = async (code) => {
@@ -100,6 +108,7 @@ const getTwitchInfo = async (code) => {
         }))
         return {
             type:"Broadcaster",
+            token,
             channelInfo,
             subs
         }
@@ -118,9 +127,10 @@ const getLesserTwitchLogin = () => {
 }
 
 //console.log(getTwitchLogin())
-console.log(getLesserTwitchLogin())
+//console.log(getLesserTwitchLogin())
 
 module.exports = {
+    getChannelInfoOnlyName,
     getTwitchInfo,
     getTwitchLogin,
     getLesserTwitchLogin
