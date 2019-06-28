@@ -33,7 +33,6 @@ const getUserDiscordIDByTwitchID = (twitch_id) => {
 }
 
 const addBroadcaster = (twitch_id, guild_id, twitch_name, twitch_token) => {
-    console.log('add broadcaster')
     broadcasters[twitch_id] = {
         guild_id,
         twitch_name,
@@ -46,6 +45,12 @@ const getBroadcaster = (twitch_id) => {
     if(broadcasters.hasOwnProperty(twitch_id))
         return broadcasters[twitch_id]
     return false
+}
+
+const setNewBroadcasterToken = (twitch_id, newToken) => {
+    broadcasters[twitch_id].twitch_token = newToken
+    fs.writeFileSync(localBroadcasters, JSON.stringify(broadcasters))
+    return broadcasters[twitch_id]
 }
 
 const addGuild = (guild_id, owner_twitch_id) => {
@@ -95,6 +100,7 @@ module.exports = {
     getUserDiscordIDByTwitchID,
     addBroadcaster,
     getBroadcaster,
+    setNewBroadcasterToken,
     addGuild,
     getGuild,
     getGuildByTwitchID,

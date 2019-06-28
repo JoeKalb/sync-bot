@@ -11,8 +11,6 @@ const { DISCORD, SETTINGS } = require('../config')
 const localDB = (SETTINGS.localhost) ? 
     require('../db'):"Actual DB connection";
 
-
-
 client.login(DISCORD.bot_token)
 
 const CURRENTURL = 'http://localhost:8000/'
@@ -60,10 +58,61 @@ client.on('message', msg => {
                 let t3 = findClosestMatch(commandName, args, ownerGuildID)
                 msg.author.send(`Set Tier 3 subs to ${t3} role.`)
                 break
+            case('sync'):
+                msg.channel.startTyping()
+                const user = localDB.getUser(msg.author.id)
+                let caster = localDB.getBroadcaster(user.twitch_id)
+                //console.log(caster)
+                syncUsers(user.twitch_id, caster)
+                    .then(subs => {
+                        editSubRoles(ownerGuildID , subs)
+                        msg.channel.stopTyping()
+                        msg.author.send('Subs Updated')
+                    })
+                break
+            case('roles'):
+                let roles = []
+                const guild = client.guilds.find(guild => guild.id === ownerGuildID)
+                guild.roles.forEach(role => {
+                    roles = [...roles, role.name]
+                })
+                roles = [`Below are all the roles available in the ${guild.name} server.`, ...roles]
+                msg.author.send(roles)
+                break
             default:
         }
     }
 })
+
+const editSubRoles = (guild_id, subs) => {
+    let map = {}
+    subs.forEach(sub => {
+        map[sub.user._id] = sub.sub_plan
+    })
+    const guild = client.guilds.find(guild => guild.id === guild_id)
+    const guild_data = localDB.getGuild(guild_id)
+    guild.members.forEach(member => {
+        const user = localDB.getUser(member.id)
+        if(user && map.hasOwnProperty(user.twitch_id)){
+            if(map[user.twitch_id] === "3000"){
+                member.addRole(guild_data.t3)
+                member.removeRole(guild_data.t2)
+            }
+            else if(map[user.twitch_id] === "2000"){
+                member.addRole(guild_data.t2)
+                member.removeRole(guild_data.t3)
+            }
+        }
+        else
+            member.removeRoles([guild_data.t2, guild_data.t3])
+    })
+}
+
+const syncUsers = async (twitch_id, caster) => {
+    let subs = await 
+        twitch.getAllChannelSubsHelper(twitch_id, caster.twitch_token.access_token)
+    return subs;
+}
 
 const findClosestMatch = (commandName, args, ownerGuildID) => {
     const inputRole = args.slice(1, args.length).join(' ')

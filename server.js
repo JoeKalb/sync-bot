@@ -34,8 +34,6 @@ app.get('/discordlogin', (req, res) => {
         .then(result => {
             discord.connectDiscordUser(result.access_token)
                 .then(userInfo => {
-                    //console.log(userInfo)
-                    //console.log(result)
                     if(isConnectedToTwitch(userInfo.connections)){
                         const twitchLink = userInfo.connections.find(connection => {
                             return connection.type === "twitch"
@@ -117,7 +115,7 @@ app.get('/twitchlogin', (req, res) => {
             }
         })
         .catch(err => {
-            res.send(`Error: ${err}`)
+            res.redirect(`https://cdn.discordapp.com/attachments/137074521940164608/594049398934208524/unknown.png`)
         })
 })
 

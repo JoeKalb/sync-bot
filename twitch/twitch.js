@@ -4,19 +4,34 @@ const fs = require('fs')
 const { TWITCH } = require('../config')
 
 const getToken = async (code) => {
-    let res = await fetch(`${TWITCH.token_url}?client_id=${TWITCH.client_id}&client_secret=${TWITCH.client_secret}&code=${code}&grant_type=authorization_code&redirect_uri=${TWITCH.redirect_uri}`, {
-        method: 'POST'
-    })
-    let json = await res.json()
-    return json
+    try{
+        let res = await fetch(`${TWITCH.token_url}?client_id=${TWITCH.client_id}&client_secret=${TWITCH.client_secret}&code=${code}&grant_type=authorization_code&redirect_uri=${TWITCH.redirect_uri}`, {
+            method: 'POST'
+        })
+        let json = await res.json()
+        return json
+    }
+    catch(err){
+        return {err}
+    }
+    
 }
 
 const getRefreshToken = async (refresh_token) => {
-    let res = await fetch(`${TWITCH.token_url}?grant_type=refresh_token&refreshtoken=${refresh_token}&client_id=${TWITCH.client_id}&client_secret=${TWITCH.client_secret}`, {
-        method: 'POST'
-    })
-    let json = await res.json()
-    return json
+    console.log(refresh_token)
+    try{
+        let res = await fetch(`${TWITCH.token_url}?grant_type=refresh_token&refreshtoken=${refresh_token}&client_id=${TWITCH.client_id}&client_secret=${TWITCH.client_secret}`, {
+            method: 'POST',
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+        })
+        let json = await res.json()
+        console.log(json)
+        return json
+    }
+    catch(err){
+        return {err}
+    }
+    
 }
 
 const getChannelInfo = async (token) => {
@@ -133,5 +148,7 @@ module.exports = {
     getChannelInfoOnlyName,
     getTwitchInfo,
     getTwitchLogin,
-    getLesserTwitchLogin
+    getLesserTwitchLogin,
+    getRefreshToken,
+    getAllChannelSubsHelper
 }
