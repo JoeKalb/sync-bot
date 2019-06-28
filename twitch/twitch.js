@@ -116,11 +116,11 @@ const getTwitchInfo = async (code) => {
     }
     else if(channelInfo.token.valid){
         let subs = await getAllChannelSubsHelper(channelInfo.token.user_id, token.access_token)
-        fs.writeFileSync(`./subs/${channelInfo.token.user_name}Subs.json`, JSON.stringify({
+        /* fs.writeFileSync(`./subs/${channelInfo.token.user_name}Subs.json`, JSON.stringify({
             token,
             channelInfo,
             subs
-        }))
+        })) */
         return {
             type:"Broadcaster",
             token,

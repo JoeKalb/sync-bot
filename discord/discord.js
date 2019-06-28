@@ -24,9 +24,7 @@ client.on('guildCreate', (guild) => {
         .setColor(0xF04747)
         .setDescription('The final steps to getting Sync Bot up and running!')
         .addField('Elevate the "Sync Bot" Role in your Discord Server', `Server Drop Down Menu("v")>"Server Settings">"Roles">Drag "Sync Bot" above all the roles you wish it to control>"Save Changes"\nReply with "!gifs" for visual aids.\n`)
-        .addField(`"!commands" to see the list of interactions for the bot.`)
-        //.addField(`Authorize Sync Bot to see your Twitch Subs if you Haven't Already`, `Click the link below to give Sync Bot access to your twitch channel subs.\n${CURRENTURL}twitchsync`)
-        //.addField('3) CONGRATULATIONS!', `The regular setup is now completed but all settings are set to default. For more options visit the site linked below.\n${CURRENTURL}`)
+        .addField(`!commands`, 'Show all commands available by doing "!commands"')
     guild.owner.send(embed)
 })
 
@@ -45,9 +43,26 @@ client.on('message', msg => {
                     '!roles - display all discord roles in your server',
                     '!set - how to set the different tier subs to discord roles',
                     '!t<sub tier number> <role name> - set a specific sub tier to a role',
+                    '!invite - send invite to all server members that already have Twitch Synced to their discord account',
+                    '!invite all - send the Sync Bot Invite to everyone!',
                     '!sync - will grab your current subs from twitch and reset everyones to the proper tier',
                 ]
                 msg.author.send(commands)
+                break
+            case ('invite'):
+                const currentGuild = client.guilds.find(guild => guild.id === ownerGuildID)
+                if(args[1] == 'all'){
+                    currentGuild.members.forEach(member => {
+                        member.send(`The Discord Server ${currentGuild.name} has just added Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}twitchuser`)
+                    })
+                }
+                else{
+                    const twitchRoleID = localDB.getGuild(ownerGuildID).t1
+                    const role = currentGuild.roles.find(role => role.id === twitchRoleID)
+                    role.members.forEach(member => {
+                        member.send(`The Discord Server ${currentGuild.name} has just added Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}twitchuser`)
+                    })
+                }
                 break
             case('gifs'):
                 gifVisualDirections(msg.author)
@@ -292,7 +307,7 @@ client.sendVerificationToOwner = (guild_id, twitch_name) => {
             t3 = role
         }
     })
-    
+
     localDB.setGuildTierRoles(guild_id,
         (sub.id)?sub.id:"",
         (t2.id)?t2.id:"",
@@ -311,6 +326,8 @@ client.sendVerificationToOwner = (guild_id, twitch_name) => {
             `${(t2.name)? t2.name: `Response with "!t2 <role name>" to set this role`}`, true)
         .addField('Tier 3 Sub Role',
             `${(t3.name)? t3.name: `Response with "!t3 <role name>" to set this role`}`, true)
+        .addField('Everything look good?', 
+            `"!command" - to see all commands\n"!invite" - to send the Sync Bot link to all current Twitch Subs\n"!sync" - set the roles for anyone that has already signed into sync bot!`)
         .setImage('https://media.giphy.com/media/F9hQLAVhWnL56/giphy.gif')
     guild.owner.send(embed)
 }
