@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const path = require('path')
-const port = 8000;
+const port = process.env.PORT || 8000;
 const cors = require('cors')
 const fs = require('fs')
 const uuid = require('uuid/v4')
@@ -9,13 +9,11 @@ const uuid = require('uuid/v4')
 const discord = require('./discord/discord')
 const twitch = require('./twitch/twitch')
 
-const FRONTEND = 'http://localhost:3000/'
-
 const { SETTINGS } = require('./config')
 const localDB = (SETTINGS.localhost) ? 
     require('./db'):"Actual DB connection";
 
-app.use(cors())
+//app.use(cors())
 
 app.get('/', (req, res) => {
     res.redirect(discord.getDiscordLogin())
@@ -143,5 +141,5 @@ app.get('/demo', async (req, res) => {
 })
 
 app.listen(port, () => {
-    `Listening on port ${port}`
+    console.log(`Listening on port ${port}`)
 })

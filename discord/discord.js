@@ -5,6 +5,8 @@ const fetch = require('node-fetch')
 const stringSimilarity = require('string-similarity');
 const fs = require('fs')
 const twitch = require('../twitch/twitch')
+const gifs = require('../gifs/gifs')
+
 
 const { DISCORD, SETTINGS } = require('../config')
 
@@ -98,6 +100,7 @@ client.on('message', msg => {
                     syncUsers(user.twitch_id, caster)
                         .then(subs => {
                             const canMangeRoles = editSubRoles(ownerGuildID , subs) 
+                            console.log(canMangeRoles)
                             msg.channel.stopTyping()
 
                             if(canMangeRoles){
@@ -142,8 +145,11 @@ const editSubRoles = (guild_id, subs) => {
 
     const t2Role = guild.roles.find(role => role.id === guild_data.t2)
     const t3Role = guild.roles.find(role => role.id === guild_data.t3)
+    console.log(syncBotRole.comparePositionTo(t2Role))
+    console.log(syncBotRole.comparePositionTo(t3Role))
 
-    if(syncBotRole.comparePositionTo(t2Role) && syncBotRole.comparePositionTo(t3Role)){
+    if(!syncBotRole.comparePositionTo(t2Role) && !syncBotRole.comparePositionTo(t3Role)){
+        console.log('should not come here')
         return false;
     }
 
@@ -403,7 +409,7 @@ client.sendVerificationToOwner = (guild_id, twitch_name) => {
                 `${(t3.name)? t3.name: `Response with "!t3 <role name>" to set this role`}`, true)
             .addField('Everything look good?', 
                 `!command - to see all commands\n!invite - to send the Sync Bot link to all current Twitch Subs\n!sync - set the roles for anyone that has already signed into sync bot!`)
-            .setImage('https://media.giphy.com/media/F9hQLAVhWnL56/giphy.gif')
+            .setImage(gifs.getRandomGif())
         guild.owner.send(embed)
     }
     catch(err){
