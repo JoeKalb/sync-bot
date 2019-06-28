@@ -5,9 +5,9 @@ const localUsers = './local/users.json'
 const localBroadcasters = './local/broadcasters.json'
 const localGuilds = './local/guilds.json'
 
-let users = JSON.parse(fs.readFileSync(localUsers))
-let broadcasters = JSON.parse(fs.readFileSync(localBroadcasters))
-let guilds = JSON.parse(fs.readFileSync(localGuilds))
+let users = JSON.parse(fs.readFileSync(localUsers)) || {}
+let broadcasters = JSON.parse(fs.readFileSync(localBroadcasters)) || {}
+let guilds = JSON.parse(fs.readFileSync(localGuilds)) || {}
 
 const addUser = (discord_id, twitch_id, twitch_name) => {
     users[discord_id] = {

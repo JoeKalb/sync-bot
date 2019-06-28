@@ -18,7 +18,7 @@ const localDB = (SETTINGS.localhost) ?
 app.use(cors())
 
 app.get('/', (req, res) => {
-    res.redirect(FRONTEND)
+    res.redirect(discord.getDiscordLogin())
 })
 
 app.get('/discordlink', (req, res) => {
@@ -26,6 +26,10 @@ app.get('/discordlink', (req, res) => {
         name:"Discord",
         url:discord.getDiscordLogin()
     })
+})
+
+app.get('/discord/sync/member', (req, res) => {
+    res.redirect(discord.getDiscordLesserLogin())
 })
 
 let allSessions = {}
@@ -88,6 +92,10 @@ app.get('/twitchlesserlink', (req, res) => {
         name:"Twitch",
         url:twitch.getLesserTwitchLogin()
     })
+})
+
+app.get('/twitchuser', (req, res) => {
+    res.redirect(twitch.getLesserTwitchLogin())
 })
 
 app.get('/twitchlogin', (req, res) => {

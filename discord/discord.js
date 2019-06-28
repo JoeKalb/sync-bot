@@ -20,11 +20,12 @@ client.on('ready', () => {
 
 client.on('guildCreate', (guild) => {
     const embed = new RichEmbed()
-        .setTitle('Final Steps')
+        .setTitle('ONE MORE THING!')
         .setColor(0xF04747)
-        .setDescription('Here are the final steps to getting Sync Bot up and running!')
+        .setDescription('The final steps to getting Sync Bot up and running!')
         .addField('Elevate the "Sync Bot" Role in your Discord Server', `Server Drop Down Menu("v")>"Server Settings">"Roles">Drag "Sync Bot" above all the roles you wish it to control>"Save Changes"\nReply with "!gifs" for visual aids.\n`)
-        .addField(`Authorize Sync Bot to see your Twitch Subs if you Haven't Already`, `Click the link below to give Sync Bot access to your twitch channel subs.\n${CURRENTURL}twitchsync`)
+        .addField(`"!commands" to see the list of interactions for the bot.`)
+        //.addField(`Authorize Sync Bot to see your Twitch Subs if you Haven't Already`, `Click the link below to give Sync Bot access to your twitch channel subs.\n${CURRENTURL}twitchsync`)
         //.addField('3) CONGRATULATIONS!', `The regular setup is now completed but all settings are set to default. For more options visit the site linked below.\n${CURRENTURL}`)
     guild.owner.send(embed)
 })
@@ -37,6 +38,17 @@ client.on('message', msg => {
         const args = msg.content.trim().slice(1).split(' ')
         const commandName = args[0]
         switch(commandName){
+            case('commands'):
+                const commands = [
+                    '!link - provides link to share with other members of your server',
+                    '!gifs - show gifs to elevate the "Sync Bot" role in your discord',
+                    '!roles - display all discord roles in your server',
+                    '!set - how to set the different tier subs to discord roles',
+                    '!t<sub tier number> <role name> - set a specific sub tier to a role',
+                    '!sync - will grab your current subs from twitch and reset everyones to the proper tier',
+                ]
+                msg.author.send(commands)
+                break
             case('gifs'):
                 gifVisualDirections(msg.author)
                 break
@@ -237,7 +249,6 @@ client.getGuildIntegrations = async (guild_id) => {
 
 client.getMatchingGuildId = (owner_id) =>{
     let guild_id = client.guilds.find(guild => guild.ownerID === owner_id).id
-    console.log(guild_id)
     return guild_id
 }
 
@@ -256,7 +267,6 @@ const gifVisualDirections = (channelOwner) => {
 }
 
 client.syncSubTiersToRoles = (twitchInfo) => {
-    console.log(twitchInfo)
     const guild = client.guilds.find(val => val.owner.name == 'JoeFish')
     if(guild){
         return `Guild Found: ${guild.name}`
@@ -282,7 +292,7 @@ client.sendVerificationToOwner = (guild_id, twitch_name) => {
             t3 = role
         }
     })
-    console.log(guild_id, sub.id)
+    
     localDB.setGuildTierRoles(guild_id,
         (sub.id)?sub.id:"",
         (t2.id)?t2.id:"",
@@ -303,6 +313,10 @@ client.sendVerificationToOwner = (guild_id, twitch_name) => {
             `${(t3.name)? t3.name: `Response with "!t3 <role name>" to set this role`}`, true)
         .setImage('https://media.giphy.com/media/F9hQLAVhWnL56/giphy.gif')
     guild.owner.send(embed)
+}
+
+client.getDiscordLesserLogin = () => {
+    return getDiscordLesserLogin()
 }
 
 module.exports = client;

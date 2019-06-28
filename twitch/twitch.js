@@ -132,12 +132,12 @@ const getTwitchInfo = async (code) => {
 }
 
 const getTwitchLogin = () => {
-    const result = TWITCH.login_url.replace('<redirect_uri>', TWITCH.redirect_uri)
+    const result = TWITCH.login_url.replace('<redirect_uri>', TWITCH.redirect_uri).replace('<client_id>', TWITCH.client_id)
     return result;
 }
 
 const getLesserTwitchLogin = () => {
-    const result = TWITCH.verify_account.replace('<redirect_uri>', TWITCH.redirect_uri)
+    const result = TWITCH.verify_account.replace('<redirect_uri>', TWITCH.redirect_uri).replace('<client_id>', TWITCH.client_id)
     return result;
 }
 
