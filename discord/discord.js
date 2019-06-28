@@ -304,7 +304,5 @@ client.sendVerificationToOwner = (guild_id, twitch_name) => {
         .setImage('https://media.giphy.com/media/F9hQLAVhWnL56/giphy.gif')
     guild.owner.send(embed)
 }
-//console.log(client.getDiscordLogin())
-//console.log(getDiscordLesserLogin())
 
 module.exports = client;

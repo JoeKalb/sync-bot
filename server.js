@@ -39,21 +39,19 @@ app.get('/discordlogin', (req, res) => {
                             return connection.type === "twitch"
                         })
                         const newUser = localDB.addUser(userInfo.identity.id, twitchLink.id, twitchLink.name)
-                        const matchingGuildID = discord.getMatchingGuildId(userInfo.identity.id)
-                        localDB.addGuild(matchingGuildID, newUser.twitch_id)
-                        if(result.scope === 'bot')
+                        if(result.scope === 'bot'){
+                            const matchingGuildID = discord.getMatchingGuildId(userInfo.identity.id)
+                            localDB.addGuild(matchingGuildID, newUser.twitch_id)
                             res.redirect(twitch.getTwitchLogin())
+                        }
                         else
-                            res.send({userInfo})
+                            res.redirect(twitch.getLesserTwitchLogin())
                     }
                     else{
                         const session = uuid();
                         allSessions[session] = userInfo;
                         console.log(session)
-                        res.send({
-                            userInfo,
-                            session
-                        })
+                        res.redirect('https://cdn.discordapp.com/attachments/137074521940164608/594049398934208524/unknown.png')
                     }
                 })
                 .catch(err => {
