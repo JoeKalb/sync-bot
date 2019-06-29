@@ -19,13 +19,6 @@ app.get('/', (req, res) => {
     res.redirect(discord.getDiscordLogin())
 })
 
-app.get('/discordlink', (req, res) => {
-    res.json({
-        name:"Discord",
-        url:discord.getDiscordLogin()
-    })
-})
-
 app.get('/discord/sync/member', (req, res) => {
     res.redirect(discord.getDiscordLesserLogin())
 })
@@ -78,20 +71,6 @@ app.get('/twitchsync', (req, res) => {
     res.redirect(twitch.getTwitchLogin())
 })
 
-app.get('/twitchlink', (req, res) => {
-    res.json({
-        name:"Twitch",
-        url:twitch.getTwitchLogin()
-    })
-})
-
-app.get('/twitchlesserlink', (req, res) => {
-    res.json({
-        name:"Twitch",
-        url:twitch.getLesserTwitchLogin()
-    })
-})
-
 app.get('/twitchuser', (req, res) => {
     res.redirect(twitch.getLesserTwitchLogin())
 })
@@ -123,23 +102,6 @@ app.get('/twitchlogin', (req, res) => {
         })
 })
 
-// to be deleted after testing is done
-app.get('/demo', async (req, res) => {
-    let session = uuid()
-    try{
-        let userInfo = await JSON.parse(fs.readFileSync('./subs/discordlogin.json'))
-        allSessions[session] = userInfo
-        console.log(allSessions)
-        res.status(200).json({
-            userInfo,
-            session
-        })
-    }
-    catch(err){
-        res.status(404).json(err)
-    }
-})
-
 app.listen(port, () => {
-    console.log(`Listening on port ${port}`)
+    console.log(`Add the Bot Here! http://localhost:8000/`)
 })

@@ -58,16 +58,22 @@ client.on('message', msg => {
                     break
                 case ('invite'):
                     const currentGuild = client.guilds.find(guild => guild.id === ownerGuildID)
-                    if(args[1] == 'all'){
-                        currentGuild.members.forEach(member => {
-                            member.send(`The Discord Server ${currentGuild.name} has just added Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}twitchuser`)
-                        })
-                    }
-                    else{
+                    let isSynced;
+                    if(args.length === 1){
                         const twitchRoleID = localDB.getGuild(ownerGuildID).t1
                         const role = currentGuild.roles.find(role => role.id === twitchRoleID)
                         role.members.forEach(member => {
-                            member.send(`The Discord Server ${currentGuild.name} has just added Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}twitchuser`)
+                            isSynced = localDB.getUser(member.id)
+                            if(!isSynced)
+                                member.send(`The Discord Server ${currentGuild.name} has added Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}discord/sync/member`)
+                        })
+                        
+                    }
+                    else if(args[1] == 'all'){
+                        currentGuild.members.forEach(member => {
+                            isSynced = localDB.getUser(member.id)
+                            if(!isSynced)
+                                console.log(`The Discord Server ${currentGuild.name} has added Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}discord/sync/member`)
                         })
                     }
                     break
@@ -408,15 +414,19 @@ client.sendVerificationToOwner = (guild_id, twitch_name) => {
             .setDescription(`Sync Bot has linked the following Server and Channel together!`)
             .addField('Discord Server', `${guild.name}`, true)
             .addField('Twitch Channel', `${twitch_name}`, true)
-            .addField('Roll Settings', `Sync Bot will guess what sub tiers match your discord roles. "!set" for help.`)
-            .addField('General Twitch Sub Role', 
+            .addField('Twitch Sub Role', 
                 `${(sub.name)? sub.name: `Response with "!t1 <role name>" to set this role`}`, true)
             .addField('Tier 2 Sub Role', 
                 `${(t2.name)? t2.name: `Response with "!t2 <role name>" to set this role`}`, true)
             .addField('Tier 3 Sub Role',
                 `${(t3.name)? t3.name: `Response with "!t3 <role name>" to set this role`}`, true)
+                .addField('Roll Settings', `Sync Bot will guess what sub tiers match your discord roles. "!set" for help.`, true)
             .addField('Everything look good?', 
-                `!command - to see all commands\n!invite - to send the Sync Bot link to all current Twitch Subs\n!sync - set the roles for anyone that is signed into sync bot!`)
+                [`!command - to see all commands`,
+                `!invite - send the Sync Bot link to all current Twitch Subs who have yet to join Sync Bot`,
+                `!invite all - to send the Sync Bot link to`,
+                `!sync - set the roles for anyone that is signed into sync bot!`
+            ])
             .setImage(gifs.getRandomGif())
         guild.owner.send(embed)
     }

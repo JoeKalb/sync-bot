@@ -20,7 +20,12 @@ const gifsList = [
     'https://media.giphy.com/media/1fj7LPAGBMiCfxqtQy/giphy.gif',
     'https://media.giphy.com/media/3NnnS6Q8hVPZC/giphy.gif',
     'https://media.giphy.com/media/IzfJSTepKi5vW/giphy.gif',
-    'https://media.giphy.com/media/mIZ9rPeMKefm0/giphy.gif'
+    'https://media.giphy.com/media/mIZ9rPeMKefm0/giphy.gif',
+    'https://media.giphy.com/media/BWD3CtcudWL28/giphy.gif',
+    'https://media.giphy.com/media/bqxbgri8lBSzvMVI3Y/giphy.gif',
+    'https://media.giphy.com/media/39nnEwo17dRoZD69sJ/giphy.gif',
+    'https://media.giphy.com/media/RfzzO0Y4SKyJy/giphy.gif',
+    'https://media.giphy.com/media/3oKIPzVXlzxhAWamNW/giphy.gif'
 ]
 
 const getRandomGif = () => {
