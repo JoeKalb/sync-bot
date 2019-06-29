@@ -84,6 +84,8 @@ const getAllChannelSubsHelper = async (user_id, token) => {
                 }
             })
             let json = await res.json()
+            if(json.error)
+                return false;
             
             total = json._total;
             subs = [...subs, ...json.subscriptions]
@@ -92,7 +94,8 @@ const getAllChannelSubsHelper = async (user_id, token) => {
         }
         catch(err){
             console.log(err)
-            subsFromCall = 0; 
+            subsFromCall = 0;
+            return false;
         }
         ++offset;
     }

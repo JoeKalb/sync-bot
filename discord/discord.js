@@ -99,17 +99,25 @@ client.on('message', msg => {
                     //console.log(caster)
                     syncUsers(user.twitch_id, caster)
                         .then(subs => {
-                            const canMangeRoles = editSubRoles(ownerGuildID , subs) 
-                            console.log(canMangeRoles)
                             msg.channel.stopTyping()
-
-                            if(canMangeRoles){
-                                msg.author.send('Subs Updated')
+                            if(!subs){
+                                msg.author.send([
+                                    `OH NO! Sync Bot needs to reconnect to twitch.`,
+                                    `Click the link below and then do !sync again.`,
+                                    `${CURRENTURL}twitchsync`
+                                ])
                             }
                             else{
-                                msg.author.send([`Sync Bot's role is lower than roles it's trying to manage.`,
-                                `Please elevate the "Sync Bot" role in your server settings.`,
-                                `!gifs - for the visual aids to show you how`])
+                                const canMangeRoles = editSubRoles(ownerGuildID , subs)
+    
+                                if(canMangeRoles){
+                                    msg.author.send('Subs Updated')
+                                }
+                                else{
+                                    msg.author.send([`Sync Bot's role is lower than roles it's trying to manage.`,
+                                    `Please elevate the "Sync Bot" role in your server settings.`,
+                                    `!gifs - for the visual aids to show you how`])
+                                }
                             }
                         })
                     break
@@ -145,11 +153,10 @@ const editSubRoles = (guild_id, subs) => {
 
     const t2Role = guild.roles.find(role => role.id === guild_data.t2)
     const t3Role = guild.roles.find(role => role.id === guild_data.t3)
-    console.log(syncBotRole.comparePositionTo(t2Role))
-    console.log(syncBotRole.comparePositionTo(t3Role))
 
-    if(!syncBotRole.comparePositionTo(t2Role) && !syncBotRole.comparePositionTo(t3Role)){
-        console.log('should not come here')
+    if(syncBotRole.comparePositionTo(t2Role) < 0
+        && syncBotRole.comparePositionTo(t3Role) < 0){
+        console.log('Sync Bot role setting is too low!')
         return false;
     }
 
@@ -185,6 +192,7 @@ const syncUsers = async (twitch_id, caster) => {
     }
     catch(err){
         console.log(err)
+        return false;
     }
 }
 
@@ -408,7 +416,7 @@ client.sendVerificationToOwner = (guild_id, twitch_name) => {
             .addField('Tier 3 Sub Role',
                 `${(t3.name)? t3.name: `Response with "!t3 <role name>" to set this role`}`, true)
             .addField('Everything look good?', 
-                `!command - to see all commands\n!invite - to send the Sync Bot link to all current Twitch Subs\n!sync - set the roles for anyone that has already signed into sync bot!`)
+                `!command - to see all commands\n!invite - to send the Sync Bot link to all current Twitch Subs\n!sync - set the roles for anyone that is signed into sync bot!`)
             .setImage(gifs.getRandomGif())
         guild.owner.send(embed)
     }
