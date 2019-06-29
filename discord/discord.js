@@ -2,11 +2,9 @@ const { Client, Attachment, RichEmbed } = require('discord.js')
 let formurlencoded = require('form-urlencoded').default;
 const client = new Client();
 const fetch = require('node-fetch')
-const stringSimilarity = require('string-similarity');
-const fs = require('fs')
+const stringSimilarity = require('string-similarity')
 const twitch = require('../twitch/twitch')
 const gifs = require('../gifs/gifs')
-
 
 const { DISCORD, SETTINGS } = require('../config')
 
@@ -414,6 +412,7 @@ client.sendVerificationToOwner = (guild_id, twitch_name) => {
             .setDescription(`Sync Bot has linked the following Server and Channel together!`)
             .addField('Discord Server', `${guild.name}`, true)
             .addField('Twitch Channel', `${twitch_name}`, true)
+            .addBlankField()
             .addField('Twitch Sub Role', 
                 `${(sub.name)? sub.name: `Response with "!t1 <role name>" to set this role`}`, true)
             .addField('Tier 2 Sub Role', 

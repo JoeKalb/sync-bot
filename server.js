@@ -1,10 +1,6 @@
 const express = require('express')
 const app = express()
-const path = require('path')
 const port = process.env.PORT || 8000;
-const cors = require('cors')
-const fs = require('fs')
-const uuid = require('uuid/v4')
 
 const discord = require('./discord/discord')
 const twitch = require('./twitch/twitch')
@@ -12,8 +8,6 @@ const twitch = require('./twitch/twitch')
 const { SETTINGS } = require('./config')
 const localDB = (SETTINGS.localhost) ? 
     require('./db'):"Actual DB connection";
-
-//app.use(cors())
 
 app.get('/', (req, res) => {
     res.redirect(discord.getDiscordLogin())
@@ -23,7 +17,6 @@ app.get('/discord/sync/member', (req, res) => {
     res.redirect(discord.getDiscordLesserLogin())
 })
 
-let allSessions = {}
 app.get('/discordlogin', (req, res) => {
     discord.getToken(req.query.code)
         .then(result => {
@@ -43,9 +36,7 @@ app.get('/discordlogin', (req, res) => {
                             res.redirect(twitch.getLesserTwitchLogin())
                     }
                     else{
-                        const session = uuid();
-                        allSessions[session] = userInfo;
-                        console.log(session)
+                        // user has yet to connect their discord and prime account
                         res.redirect('https://cdn.discordapp.com/attachments/137074521940164608/594049398934208524/unknown.png')
                     }
                 })

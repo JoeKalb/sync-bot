@@ -175,9 +175,6 @@ const getLesserTwitchLogin = () => {
     return result;
 }
 
-//console.log(getTwitchLogin())
-//console.log(getLesserTwitchLogin())
-
 module.exports = {
     getChannelInfoOnlyName,
     getTwitchInfo,

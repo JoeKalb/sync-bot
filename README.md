@@ -13,7 +13,7 @@ module.exports = {
         client_id:"<client id>",
         client_secret:"<client secret>",
         scope:"bot",
-        redirect_uri:"<discord redirect uri>",
+        redirect_uri:"http://localhost:8000/discordlogin",
         login_url:"<Discord OAUTH2 URL GENERATER SCOPRES = [identify, connections, bot] BOT PERMISSIONS = [Manage Roles, All Text Permissions]>",
         login_url_user:"<Discord OAUTH2 URL GENERATER SCOPRES = [identify, connections]>",
         token_url:"https://discordapp.com/api/oauth2/token",
@@ -24,7 +24,7 @@ module.exports = {
         client_secret:"<client secret>",
         scope:"channel:read:subscriptions+channel_subscriptions",
         response_type:"code",
-        redirect_uri:"<twitch redirect uri>",
+        redirect_uri:"http://localhost:8000/twitchlogin",
         login_url:"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=<client_id>&redirect_uri=<redirect_uri>&scope=channel:read:subscriptions+channel_subscriptions",
         token_url:"https://id.twitch.tv/oauth2/token",
         verify_account:"https://id.twitch.tv/oauth2/authorize?response_type=code&client_id=<client_id>&redirect_uri=<redirect_uri>&scope=user:read:email"
