@@ -19,8 +19,9 @@ const getToken = async (code) => {
 
 const getRefreshToken = async (refresh_token) => {
     console.log(refresh_token)
+    let encodeToken = encodeURI(refresh_token)
     try{
-        let res = await fetch(`${TWITCH.token_url}?grant_type=refresh_token&refreshtoken=${refresh_token}&client_id=${TWITCH.client_id}&client_secret=${TWITCH.client_secret}`, {
+        let res = await fetch(`${TWITCH.token_url}?grant_type=refresh_token&refreshtoken=${encodeToken}&client_id=${TWITCH.client_id}&client_secret=${TWITCH.client_secret}`, {
             method: 'POST',
             'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
         })
