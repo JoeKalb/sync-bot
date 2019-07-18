@@ -145,8 +145,9 @@ client.on('message', msg => {
 
 const editSubRoles = (guild_id, subs) => {
     let map = {}
+    console.log(subs)
     subs.forEach(sub => {
-        map[sub.user._id] = sub.sub_plan
+        map[sub.user_id] = sub.sub_plan
     })
     const guild = client.guilds.find(guild => guild.id === guild_id)
     const guild_data = localDB.getGuild(guild_id)
@@ -191,7 +192,7 @@ const editSubRoles = (guild_id, subs) => {
 const syncUsers = async (twitch_id, caster) => {
     try{
         let subs = await 
-            twitch.getAllChannelSubsHelper(twitch_id, caster.twitch_token.access_token)
+            twitch.getAllChannelSubHelix(twitch_id, caster.twitch_token.access_token)
         return subs;
     }
     catch(err){

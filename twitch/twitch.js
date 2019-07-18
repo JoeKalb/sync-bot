@@ -32,7 +32,6 @@ const getRefreshToken = async (refresh_token) => {
     catch(err){
         return {err}
     }
-    
 }
 
 const getChannelInfo = async (token) => {
@@ -60,8 +59,43 @@ const getIndivChannelSub = async (token, broad_id, user_id) => {
                 'Authorization': `Bearer ${token}`
             }
         })
-        let json = res.json()
+        let json = await res.json()
         return json
+    }
+    catch(err){
+        console.log(err)
+        return {err}
+    }
+}
+
+const getAllChannelSubHelix = async (broad_id, token) => {
+    try{
+        let subs = []
+        let res = await fetch(`https://api.twitch.tv/helix/subscriptions?broadcaster_id=${broad_id}`,{
+            headers:{
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        let json = await res.json()
+        if(json.status !== 401)
+            subs = [...json.data]
+
+        while(json.data.length > 0){
+            try{
+                res  = await fetch(`https://api.twitch.tv/helix/subscriptions?broadcaster_id=${broad_id}&after=${json.pagination.cursor}`, {
+                    headers:{
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                json = await res.json()
+                subs = [...subs, ...json.data]
+            }
+            catch(err){
+                console.log(err)
+            }
+        }
+
+        return subs
     }
     catch(err){
         console.log(err)
@@ -182,5 +216,6 @@ module.exports = {
     getTwitchLogin,
     getLesserTwitchLogin,
     getRefreshToken,
-    getAllChannelSubsHelper
+    getAllChannelSubsHelper,
+    getAllChannelSubHelix
 }
