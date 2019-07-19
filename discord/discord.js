@@ -32,6 +32,38 @@ client.on('guildCreate', (guild) => {
     }
 })
 
+client.on('guildMemberAdd', member => {
+    let userInfo = localDB.getUser(member.id)
+    if(userInfo){
+        let guild = localDB.getGuild(member.guild.id)
+        let caster = localDB.getBroadcaster(guild.owner_twitch_id)
+        twitch.getIndivChannelSub(caster.twitch_token.access_token, guild.owner_twitch_id, userInfo.twitch_id)
+            .then(res => {
+                if(res.tier){
+                    const { t2, t3 } = guild;
+                    if(res.tier === "3000"){
+                        member.addRole(t3)
+                        member.removeRole(t2)
+                    }
+                    else if(res.tier === "2000"){
+                        member.addRole(t2)
+                        member.removeRole(t3)
+                    }
+                }
+                else
+                    console.log(`${member.user.username} not subbed!`)
+            })
+            .catch(err => {
+                console.log(err)
+            })
+    }
+    else{
+        const guildName = member.guild.name;
+        const text = `The Discord Server ${guildName} has Sync Bot! Click the link to make sure you get the proper Tier Sub Role ${CURRENTURL}discord/sync/member`
+        member.send(text)
+    }
+})
+
 client.on('message', msg => {
     try{
         const ownerGuildID = ownerSetUp(msg)
@@ -48,8 +80,8 @@ client.on('message', msg => {
                         '!roles - display all discord roles in your server',
                         '!set - how to set the different tier subs to discord roles',
                         '!t<sub tier number> <role name> - set a specific sub tier to a role',
-                        '!invite - send invite to all server members that already have Twitch Synced to their discord account',
-                        '!invite all - send the Sync Bot Invite to everyone!',
+                        '!invite - send invite to server members that already have Twitch Synced to their discord account',
+                        '!invite all - send the Sync Bot Invite to everyone on the Server!',
                         '!sync - will grab your current subs from twitch and reset everyones to the proper tier',
                     ]
                     msg.author.send(commands)

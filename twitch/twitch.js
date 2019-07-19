@@ -60,7 +60,7 @@ const getIndivChannelSub = async (token, broad_id, user_id) => {
             }
         })
         let json = await res.json()
-        return json
+        return (json.data) ? json.data[0] : {}
     }
     catch(err){
         console.log(err)
@@ -217,5 +217,6 @@ module.exports = {
     getLesserTwitchLogin,
     getRefreshToken,
     getAllChannelSubsHelper,
-    getAllChannelSubHelix
+    getAllChannelSubHelix,
+    getIndivChannelSub
 }

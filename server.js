@@ -36,7 +36,7 @@ app.get('/discordlogin', (req, res) => {
                             res.redirect(twitch.getLesserTwitchLogin())
                     }
                     else{
-                        // user has yet to connect their discord and prime account
+                        // user has yet to connect their discord and twitch account
                         res.redirect('https://cdn.discordapp.com/attachments/137074521940164608/594049398934208524/unknown.png')
                     }
                 })
