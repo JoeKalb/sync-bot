@@ -176,7 +176,8 @@ client.on('message', msg => {
 })
 
 client.on('voiceStateUpdate', (oldMember, newMember) => {
-    console.log(`${newMember.user.username} joined voice channel: ${newMember.voiceChannel.name}`)
+    if(newMember.voiceChannel)
+        console.log(`${newMember.user.username} joined voice channel: ${newMember.voiceChannel.name}`)
 })
 
 const editSubRoles = (guild_id, subs) => {
