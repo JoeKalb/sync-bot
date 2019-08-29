@@ -166,6 +166,15 @@ client.on('message', msg => {
                     roles = [`Below are all the roles available in the ${guild.name} server.`, ...roles]
                     msg.author.send(roles)
                     break
+                case('q'):{
+                    try{
+                        
+                    }
+                    catch(err){
+                        msg.author.send(err)
+                        console.log(err)
+                    }
+                }
                 default:
             }
         }
@@ -381,8 +390,16 @@ client.connectDiscordUser = async (token) => {
 }
 
 client.getGuildIntegrations = async (guild_id) => {
+    return await getGuildIntegrations(guild_id)
+}
+
+const getGuildIntegrations = async(guild_id) => {
     try{
-        let res = await fetch(`${BASEURL}/guilds/${guild_id}/integrations`)
+        let res = await fetch(`${BASEURL}/guilds/${guild_id}/integrations`, {
+            headers:{
+                'Authorization':`Bot ${DISCORD.bot_token}`
+            }
+        })
         let json = await res.json()
         return json;
     }

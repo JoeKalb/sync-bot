@@ -80,7 +80,7 @@ const getAllChannelSubHelix = async (broad_id, token) => {
         if(json.status !== 401)
             subs = [...json.data]
 
-        while(json.data.length > 0){
+        while(json.data.lenght && json.data.length > 0){
             try{
                 res  = await fetch(`https://api.twitch.tv/helix/subscriptions?broadcaster_id=${broad_id}&after=${json.pagination.cursor}`, {
                     headers:{
